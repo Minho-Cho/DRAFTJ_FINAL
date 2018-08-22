@@ -1,0 +1,51 @@
+package com.meetingbot.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ibm.watson.developer_cloud.assistant.v1.Assistant;
+import com.ibm.watson.developer_cloud.assistant.v1.model.InputData;
+import com.ibm.watson.developer_cloud.assistant.v1.model.MessageOptions;
+import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
+
+public class assistantUnit {
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	private static final String ASSISTANT_USERNAME = "2d299b94-eb05-4180-ab1b-8d2e8a1c8f71";
+	private static final String ASSISTANT_PASSWORD = "G1HsnYvdJac0";
+	private static final String ASSISTANT_ENDPOINT = "https://gateway.aibril-watson.kr/assistant/api";
+	
+	/**
+	 * STT Record 시작
+	 * @return
+	 */
+	public String start(String inputText) {
+
+		logger.info("assistant Started!");
+
+		
+		Assistant assistantService = new Assistant("2018-07-10");
+		assistantService.setEndPoint(ASSISTANT_ENDPOINT);
+	
+		assistantService.setUsernameAndPassword(ASSISTANT_USERNAME, ASSISTANT_PASSWORD);
+
+		String workspaceId = "440bcf6f-94fc-4baa-8392-49591e0a70ba";
+
+		InputData input = new InputData.Builder(inputText).build();
+
+		MessageOptions options = new MessageOptions.Builder(workspaceId)
+		  .input(input)
+		  .build();
+
+		MessageResponse response = assistantService.message(options).execute();
+
+//		System.out.println(response);
+//		System.out.println(inputText);
+//		System.out.println(response.getOutput().getText());
+				
+		return response.getOutput().getText().get(0);
+		
+	}
+
+}

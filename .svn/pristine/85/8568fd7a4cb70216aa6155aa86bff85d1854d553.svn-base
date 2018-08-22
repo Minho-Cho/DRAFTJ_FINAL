@@ -1,0 +1,53 @@
+package com.meetingbot.main;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Arrays;
+
+import org.springframework.stereotype.Service;
+
+import com.ibm.watson.developer_cloud.speech_to_text.v1.SpeechToText;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.RecognizeOptions;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechRecognitionResults;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.websocket.BaseRecognizeCallback;
+
+@Service
+public class MainService {
+
+	public static final String USERNAME = "d542ce70-2f8e-4de4-b07d-c4bf1afcffee";
+	public static final String PASSWORD = "pTtnPx1IyVQ0";
+	public static final String ENDPOINT = "https://stream.aibril-watson.kr/speech-to-text/api";
+
+	public void sttTest() {
+		SpeechToText speechToText = new SpeechToText();
+		speechToText.setUsernameAndPassword(USERNAME, PASSWORD);
+		speechToText.setEndPoint(ENDPOINT);
+
+		try {
+			RecognizeOptions recognizeOptions = new RecognizeOptions.Builder()
+					.audio(new FileInputStream("C:\\Users\\Administrator\\Downloads\\audio-file.flac"))
+					.contentType("audio/flac").model("en-US_BroadbandModel")
+					.keywords(Arrays.asList("colorado", "tornado", "tornadoes")).keywordsThreshold((float) 0.5)
+					.maxAlternatives(3).build();
+
+			BaseRecognizeCallback baseRecognizeCallback = new BaseRecognizeCallback() {
+
+				@Override
+				public void onTranscription(SpeechRecognitionResults speechRecognitionResults) {
+					System.out.println(speechRecognitionResults);
+				}
+
+				@Override
+				public void onDisconnected() {
+					System.exit(0);
+				}
+			};
+
+			speechToText.recognizeUsingWebSocket(recognizeOptions, baseRecognizeCallback);
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+}

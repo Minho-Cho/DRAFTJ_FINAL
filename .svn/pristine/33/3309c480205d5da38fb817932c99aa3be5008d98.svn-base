@@ -1,0 +1,52 @@
+package com.meetingbot.main;
+
+import java.io.InputStream;
+import java.util.Arrays;
+
+import org.springframework.stereotype.Service;
+
+import com.ibm.watson.developer_cloud.speech_to_text.v1.SpeechToText;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.RecognizeOptions;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechRecognitionResults;
+
+@Service
+public class MainService {
+
+	public static final String USERNAME = "d542ce70-2f8e-4de4-b07d-c4bf1afcffee";
+	public static final String PASSWORD = "pTtnPx1IyVQ0";
+	public static final String ENDPOINT = "https://stream.aibril-watson.kr/speech-to-text/api";
+
+	public String sttTest(InputStream inputStream) {
+		
+		String text = "";
+		
+		SpeechToText speechToText = new SpeechToText();
+		speechToText.setUsernameAndPassword(USERNAME, PASSWORD);
+		speechToText.setEndPoint(ENDPOINT);
+
+		try {
+//		  List<String> files = Arrays.asList(recorded);
+//		  for (String file : files) {
+		    RecognizeOptions recognizeOptions = new RecognizeOptions.Builder()
+		      .audio(inputStream)
+		      .contentType("audio/wav")
+		      .model("ko-KR_BroadbandModel")
+		      .wordAlternativesThreshold((float) 0.5)
+		      .keywords(Arrays.asList("시작", "종료"))
+		      .keywordsThreshold((float) 0.5)
+		      .build();
+
+		    SpeechRecognitionResults speechRecognitionResults =
+		      speechToText.recognize(recognizeOptions).execute();
+		    System.out.println(speechRecognitionResults);
+		    if(speechRecognitionResults.getResults().size() > 0) {
+		    	text = speechRecognitionResults.getResults().get(0).getAlternatives().get(0).getTranscript();
+		    }
+//		  }
+		} catch (Exception e) {
+		  e.printStackTrace();
+		}	
+		
+		return text;
+	}
+}

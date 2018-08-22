@@ -1,0 +1,19 @@
+spring.mvc.view.prefix=/WEB-INF/jsp/
+spring.mvc.view.suffix=.jsp
+
+## STT ##
+stt.username=d542ce70-2f8e-4de4-b07d-c4bf1afcffee
+stt.password=pTtnPx1IyVQ0
+stt.endpoint=https://stream.aibril-watson.kr/speech-to-text/api
+
+## NLU ##
+nlu.version=2018-03-16
+nlu.username=4c380c29-bea4-48dd-a9ee-1925f64e8085
+nlu.password=xCzH3wJwAviZ
+nlu.endpoint=https://gateway.aibril-watson.kr/natural-language-understanding/api
+
+## Assistant ##
+assistant.username=2d299b94-eb05-4180-ab1b-8d2e8a1c8f71
+assistant.password=G1HsnYvdJac0
+assistant.endpoint=https://gateway.aibril-watson.kr/assistant/api
+assistant.workspaceid=440bcf6f-94fc-4baa-8392-49591e0a70ba

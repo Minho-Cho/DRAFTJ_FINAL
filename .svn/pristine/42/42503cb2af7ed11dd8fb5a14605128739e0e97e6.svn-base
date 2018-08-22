@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="us">
+<head>
+<meta charset="utf-8">
+<title>회의</title>
+<link href="jqueryui/jquery-ui.css" rel="stylesheet">
+<style>
+body {
+	font-family: "Trebuchet MS", sans-serif;
+	margin: 50px;
+}
+
+.demoHeaders {
+	margin-top: 2em;
+}
+
+#dialog-link {
+	padding: .4em 1em .4em 20px;
+	text-decoration: none;
+	position: relative;
+}
+
+#dialog-link span.ui-icon {
+	margin: 0 5px 0 0;
+	position: absolute;
+	left: .2em;
+	top: 50%;
+	margin-top: -8px;
+}
+
+#icons {
+	margin: 0;
+	padding: 0;
+}
+
+#icons li {
+	margin: 2px;
+	position: relative;
+	padding: 4px 0;
+	cursor: pointer;
+	float: left;
+	list-style: none;
+}
+
+#icons span.ui-icon {
+	float: left;
+	margin: 0 4px;
+}
+
+.fakewindowcontain .ui-widget-overlay {
+	position: absolute;
+}
+
+select {
+	width: 200px;
+}
+
+table.info {
+	width: 100%;
+	border: 1px solid #444444;
+	border-collapse: collapse;
+}
+
+th.info, td.info, th.info {
+	border: 1px solid #444444;
+	padding: 5px;
+	margin: 1px;
+}
+
+th.info {
+	background: #f6f6f6;
+}
+</style>
+</head>
+<script src="jquery/js/jquery-1.7.2.js"></script>
+<script src="jqueryui/jquery-ui.js"></script>
+<script>
+	$(document).ready(function() {
+		$("#btnStart").button();
+		$("#btnStop").button();
+	});
+
+	// STT 시작
+	var sttTimer;
+	function startRecording() {
+		$.ajax({
+			type : 'GET',
+			dataType : 'json',
+			url : '/startRecording',
+			data : {},
+			complete : function() {
+				sttTimer = setInterval(function() {
+					getRecorded();
+				}, 200);
+			},
+			success : function(result) {
+				if (result == "F") {
+					alert("회의록을 작성할 수 없습니다.");
+				} else {
+					alert("회의록 작성을 시작합니다.");
+				}
+			},
+			error : function(e) {
+			}
+		});
+	}
+
+	// STT 내용 조회
+	var lastResultIndex = '-1';
+	function getRecorded() {
+		$.ajax({
+			type : 'GET',
+			dataType : 'json',
+			url : '/getRecorded',
+			data : {},
+			success : function(list) {
+				$.each(list, function(index, value) {
+					if(lastResultIndex < list[index].index) {
+						if($('[data-index="' + list[index] .index + '"]').length > 0) {
+							$('[data-index="' + list[index] .index + '"]').html(list[index].transcript);
+						} else {
+							$("#divStt").append("<span data-index='"+list[index].index+"'>" + list[index].transcript + "<span>");
+						}
+					}
+
+					if(list[index].isFinal == "true"){
+						lastResultIndex = list[index].index;
+					}
+				});
+			},
+			error : function(e) {
+			}
+		});
+	}
+
+	// STT 중지
+	function stopRecording() {
+		$.ajax({
+			type : 'GET',
+			dataType : 'json',
+			url : '/stopRecording',
+			data : {},
+			complete : function() {
+				clearInterval(sttTimer);
+			},
+			success : function(result) {
+				alert("회의록 작성을 종료합니다.");
+			},
+			error : function(e) {
+			}
+		});
+	}
+</script>
+<body>
+	<div
+		style="width: 100%; background: #0073ea; color: white; padding-left: 10px;">
+		<h1>Meeting Assistant '에선임'</h1>
+	</div>
+	<div style="width: 100%;">
+		<div id="divMeeting" class="ui-corner-all ui-widget ui-widget-content"
+			style="width: 65%; height: 800px; float: left;">
+			<table style="width: 90%; margin: auto;">
+				<tr>
+					<td align="center"><h1>DRAFT J 사전 회의</h1></td>
+				</tr>
+				<tr>
+					<td>
+						<div>
+							<table class="info" style="width: 100%; margin: auto;">
+								<tr class="info">
+									<th class="info" style="width: 15%;">일시</th>
+									<td class="info" style="width: 35%;">2018-07-12 10:30</td>
+									<th class="info" style="width: 15%;">장소</th>
+									<td class="info" style="width: 35%;">RC2-2</td>
+								</tr>
+								<tr class="info">
+									<th class="info" style="width: 15%;">참석자</th>
+									<td class="info" style="width: 35%;" colspan="3">홍길동(Hi-Tech정보화개발팀),
+										임꺽정(Hi-Tech정보화개발팀)</td>
+								</tr>
+							</table>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div>
+							<table class="info"
+								style="width: 100%; height: 600px; margin: auto;">
+								<tr class="info">
+									<td class="info" style="width: 100%;">
+										<div id="divStt" style="height: 550px; overflow: auto;"></div>
+										<div>
+											<button id="btnStart" onclick="startRecording(this);">Start</button>
+											<button id="btnStop" onclick="stopRecording(this);">Stop</button>
+										</div>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div id="divChat" class="ui-corner-all ui-widget ui-widget-content"
+			style="width: 34%; height: 800px; float: right;"></div>
+	</div>
+</body>
+</html>

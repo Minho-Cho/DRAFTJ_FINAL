@@ -1,0 +1,89 @@
+package com.meetingbot.main;
+
+import java.rmi.UnknownHostException;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
+import com.meetingbot.util.NluAnalyzer;
+import com.meetingbot.util.SttRecognizer;
+import com.meetingbot.util.assistantUnit;
+
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.MongoClient;
+
+@Service
+public class MainService {
+
+	private SttRecognizer sttRecognizer;
+	private assistantUnit assistant;
+	
+	
+	public void mongoTest() throws UnknownHostException {
+		MongoClient mongo = new MongoClient("127.0.0.1", 27017);
+		DB db = mongo.getDB("meetingbot");
+		DBCollection coll = db.getCollection("meetingbot");
+		
+		DBCursor cursor= coll.find();
+		while(cursor.hasNext()){
+			System.out.println("Hello Mongo");
+			System.out.println(cursor.next().get("_id"));
+		}
+	}
+	
+	/**
+	 * Assistant 시작
+	 * @return
+	 */
+	public String startAssistant(String inputText) {
+		this.assistant = new assistantUnit();
+		return assistant.start(inputText);
+	}
+
+
+	private NluAnalyzer nluAnalyzer;
+	/**
+	 * STT 시작
+	 * @return
+	 */
+	public String startRecording() {
+		if(this.sttRecognizer != null) {
+			return SttRecognizer.STT_RESULT_FAIL;
+		}
+		this.sttRecognizer = new SttRecognizer();
+		return sttRecognizer.start();
+	}
+	
+	/**
+	 * STT 중지
+	 */
+	public void stopRecording() {
+		this.sttRecognizer.stop();
+		this.sttRecognizer = null;
+	}
+	
+	/**
+	 * STT 목록 조회
+	 * @return
+	 */
+	public List<Map<String, String>> getRecorded() {
+		return this.sttRecognizer.getSttList();
+	}
+	
+	/**
+	 * NLU 분석
+	 * @return
+	 */
+	public Map<String, List<Map<String, String>>> startAnalyze(String analyzeText) {
+		
+		analyzeText = analyzeText.replace("analyzeText=", "");
+		
+		if(this.nluAnalyzer == null) {
+			this.nluAnalyzer = new NluAnalyzer();
+		}
+		return this.nluAnalyzer.analyze(analyzeText);
+	}
+}

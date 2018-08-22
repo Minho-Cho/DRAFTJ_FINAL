@@ -1,0 +1,42 @@
+package com.meetingbot.main;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
+import com.meetingbot.util.SttRecognizer;
+
+@Service
+public class MainService {
+
+	private SttRecognizer sttRecognizer;
+	
+	/**
+	 * STT 시작
+	 * @return
+	 */
+	public String startRecording() {
+		if(this.sttRecognizer != null) {
+			return SttRecognizer.RESULT_FAIL;
+		}
+		this.sttRecognizer = new SttRecognizer();
+		return sttRecognizer.start();
+	}
+	
+	/**
+	 * STT 중지
+	 */
+	public void stopRecording() {
+		this.sttRecognizer.stop();
+		this.sttRecognizer = null;
+	}
+	
+	/**
+	 * STT 목록 조회
+	 * @return
+	 */
+	public List<Map<String, String>> getRecorded() {
+		return this.sttRecognizer.getSttList();
+	}
+}
